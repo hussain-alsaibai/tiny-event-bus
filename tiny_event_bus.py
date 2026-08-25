@@ -8,11 +8,9 @@ async handlers, priority ordering, and one-time subscriptions.
 from __future__ import annotations
 
 import asyncio
-import fnmatch
-import inspect
 import typing
 from dataclasses import dataclass, field
-from typing import Any, Callable, Generic, TypeVar, Union
+from typing import Any, Callable, Generic, TypeVar
 
 T = TypeVar("T")
 
@@ -48,11 +46,12 @@ class Subscription(Generic[T]):
     once: bool = False
     priority: int = 0
     active: bool = True
+    _order: int = field(default=0, compare=True, repr=False)
 
     def __lt__(self, other: Subscription) -> bool:
         if self.priority != other.priority:
             return self.priority > other.priority
-        return id(self) < id(other)
+        return self._order < other._order
 
     def __call__(self, payload: EventPayload) -> T:
         """Allow Subscription to be used as a decorator shorthand."""
@@ -109,6 +108,7 @@ class EventBus:
         self._on_publish: MiddlewareHook | None = on_publish
         self._on_subscribe: Callable[[Subscription], None] | None = on_subscribe
         self._on_unsubscribe: Callable[[Subscription], None] | None = on_unsubscribe
+        self._insertion_counter: int = 0
 
     # -----------------------------------------------------------------------
     # Subscription management
@@ -155,12 +155,14 @@ class EventBus:
         """
 
         def _register(h: Handler | AsyncHandler) -> Subscription[Any]:
+            self._insertion_counter += 1
             sub = Subscription(
                 topic=topic,
                 handler=h,
                 once=once,
                 priority=priority,
                 active=True,
+                _order=self._insertion_counter,
             )
             if topic not in self._subscriptions:
                 self._subscriptions[topic] = []
