@@ -1,7 +1,7 @@
 [project]
 name = "tiny-event-bus"
-version = "0.1.0"
-description = "Zero-dependency in-process pub/sub event bus for Python. Topics, wildcards, DLQ, async."
+version = "0.3.0"
+description = "Zero-dependency in-process pub/sub event bus for Python. Topics, wildcards, DLQ, replay, retries, async."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
