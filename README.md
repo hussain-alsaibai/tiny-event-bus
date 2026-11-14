@@ -83,7 +83,8 @@ bus.publish("agent.1.response", {"content": "分析完成", "next_action": "summ
 ## Quick Start
 
 ```bash
-pip install tiny-event-bus
+# From GitHub (recommended -- not yet on PyPI)
+pip install git+https://github.com/hussain-alsaibai/tiny-event-bus.git
 ```
 
 ```python
